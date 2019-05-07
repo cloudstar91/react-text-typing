@@ -78,14 +78,25 @@ var TextInput = React.createClass({
 });
 
 var App = React.createClass({
-  componentWillMount: function() {
-    this.intervals = [];
+  componentDidMount: function () {
+    var that=this;
+    this.intervals=[]
+    fetch("http://localhost:5000/excerpts/random")
+      .then(function (response) { 
+        return response.json() })
+      .then(function (data) { 
+        that.setState({
+          excerpt:data.text,
+          excerpt_id:data.id
+        })
+       })
+     
   },
   setInterval: function() {
     this.intervals.push(setInterval.apply(null, arguments));
   },
   getInitialState: function() {
-    return {
+    return this.state =  {
       index: 0,
       error: false,
       errorCount: 0,
@@ -94,12 +105,12 @@ var App = React.createClass({
       value: '',
       startTime: null,
       wpm: 0,
-      excerpt: this._randomElement(this.props.excerpts),
+      excerpt: '',
       completed: false
     };
   },
   _randomElement: function(array) {
-    return this.props.excerpts[Math.floor(Math.random()*this.props.excerpts.length)];
+    return array[Math.floor(Math.random()*array.length)];
   },
   _handleInputChange: function(e) {
     if (this.state.completed) {
@@ -170,6 +181,7 @@ var App = React.createClass({
     var wpm;
     if (this.state.completed) {
       wpm = this.state.excerpt.split(' ').length / (elapsed / 1000) * 60;
+      this._postScore({wpm:wpm,excerpt_id:this.state.excerpt_id});
     } else {
       var words = this.state.excerpt.slice(0, this.state.index).split(' ').length;
       wpm = words / (elapsed / 1000) * 60;
@@ -178,11 +190,26 @@ var App = React.createClass({
       wpm: this.state.completed ? Math.round(wpm * 10) / 10 : Math.round(wpm)
     });
   },
+  _postScore: function(scores){
+    var that= this;
+    fetch("http://localhost:5000/score",
+    {
+      method:"POST",
+      headers:{
+        "Content-type":'application/json'
+      },
+      body: JSON.stringify(scores)
+    })
+    .then(function(response){
+      return response.json();
+    }).then( function(data) { console.log(data)})
+
+  },
   render: function() {
     return (
       <div>
         <div className="header">
-          <h1>typing speed test</h1>
+          <h1>Hello</h1>
           <i
             className="fa fa-lg fa-refresh"
             onClick={this._restartGame}>
@@ -196,7 +223,7 @@ var App = React.createClass({
           index={this.state.index}
           error={this.state.error}
           lineView={this.state.lineView}>
-          {this.state.excerpt}
+          {this.state.excerpt?this.state.excerpt:"loading"};
         </TextDisplay>
         <TextInput
           onInputChange={this._handleInputChange}
@@ -226,4 +253,4 @@ var Footer = React.createClass({
   },
 });
 
-React.render(<App excerpts={excerpts} />, document.getElementById('container'));
+React.render(<App/>, document.getElementById('container'));
