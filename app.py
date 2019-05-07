@@ -11,16 +11,15 @@ CORS(app)
 
 load_dotenv()
 
-POSTGRES = {
-   'user': os.getenv('PSQL_USER'),
-   'pw': os.getenv('PSQL_PWD'),
-   'db': os.getenv('PSQL_DB'),
-   'host': os.getenv('PSQL_HOST'),
-   'port': os.getenv('PSQL_PORT'),
-}
+# POSTGRES = {
+#    'user': os.getenv('PSQL_USER'),
+#    'pw': os.getenv('PSQL_PWD'),
+#    'db': os.getenv('PSQL_DB'),
+#    'host': os.getenv('PSQL_HOST'),
+#    'port': os.getenv('PSQL_PORT'),
+# }
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:%(pw)s@%(host)s:\
-%(port)s/%(db)s' % POSTGRES
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 db = SQLAlchemy(app)
 migrate=Migrate(app,db)
