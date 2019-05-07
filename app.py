@@ -19,7 +19,7 @@ load_dotenv()
 #    'port': os.getenv('PSQL_PORT'),
 # }
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 db = SQLAlchemy(app)
 migrate=Migrate(app,db)
